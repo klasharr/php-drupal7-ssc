@@ -2,135 +2,150 @@
 
 module_load_include('inc', 'ssc', 'ssc');
 
-function ssc_init()
-{
-    drupal_add_js('misc/collapse.js');
-    drupal_add_js('misc/form.js');
+/**
+ * hook_init() implementation
+ *
+ * @see form_ssc_main_settings()
+ */
+function ssc_init() {
+  drupal_add_js('misc/collapse.js');
+  drupal_add_js('misc/form.js');
 
-    if (!user_is_logged_in() && drupal_match_path(
-            drupal_get_path_alias(current_path()),
-            variable_get('ssc_members_only_paths')
-        )
-    ) {
-        drupal_set_message(variable_get('ssc_members_only_message'), 'warning');
-        drupal_goto('user/login');
-    }
+  if (!user_is_logged_in() && drupal_match_path(
+      drupal_get_path_alias(current_path()),
+      variable_get('ssc_members_only_paths')
+    )
+  ) {
+    drupal_set_message(variable_get('ssc_members_only_message'), 'warning');
+    drupal_goto('user/login');
+  }
 
-    if (user_is_logged_in() && current_path() == 'user/' . variable_get(
-            'ssc_generic_user_id',
-            0
-        )
-    ) {
-        drupal_goto('members');
-    }
+  if (user_is_logged_in() && current_path() == 'user/' . variable_get(
+      'ssc_generic_user_id',
+      0
+    )
+  ) {
+    drupal_goto('members');
+  }
 
-    if (current_path() == 'members/meeting-minutes') {
-        drupal_goto(variable_get('ssc_default_minutes_page'));
-    }
+  if (current_path() == 'members/meeting-minutes') {
+    drupal_goto(variable_get('ssc_default_minutes_page'));
+  }
 
-}
-
-function ssc_menu()
-{
-    $items = array();
-
-    $items['login'] = array(
-        'title' => t('Login'),
-        'page callback' => '_ssc_page_forward',
-        'page arguments' => array('login'),
-        'access callback' => 'user_is_anonymous',
-        'weight' => 50,
-        'menu_name' => 'main-menu',
-        'file' => 'ssc.inc',
-    );
-
-    $items['logout'] = array(
-        'title' => t('Logout'),
-        'page callback' => '_ssc_page_forward',
-        'page arguments' => array('logout'),
-        'access callback' => 'user_is_logged_in',
-        'weight' => 51,
-        'menu_name' => 'main-menu',
-        'file' => 'ssc.inc',
-    );
-
-    $items['admin/config/ssc'] = array(
-        'title' => 'Sailing club settings',
-        'title callback' => 't',
-        'description' => t('Sailing club configuration'),
-        'position' => 'right',
-        'weight' => 30,
-        'page callback' => 'system_admin_menu_block_page',
-        'file' => 'system.admin.inc',
-        'access arguments' => array('administer site configuration'),
-        'file path' => drupal_get_path('module', 'system'),
-    );
-
-    $items['admin/config/ssc/settings'] = array(
-        'title' => 'Settings',
-        'title callback' => 't',
-        'description' => t('Sailing club settings'),
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('form_ssc_main_settings'),
-        'access arguments' => array('administer site configuration'),
-        'file' => 'ssc.inc',
-        'weight' => '10',
-    );
-
-    $items['clear-page-cache'] = array(
-        'title' => 'Clear page cache',
-        'title callback' => 't',
-        'description' => t(
-            'Clear the page cache for force changes to be visible to users.'
-        ),
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('_ssc_form_clear_path_cache'),
-        'access callback' => '_ssc_page_clear_access_callback',
-        'file' => 'ssc.inc',
-        'menu' => 'navigation',
-    );
-
-    $items['jump'] = array(
-        'type' => MENU_CALLBACK,
-        'page callback' => '_ssc_page_secure_redir',
-        'file' => 'ssc.inc',
-        'access callback' => true,
-    );
-
-    return $items;
-}
-
-function ssc_menu_alter(&$items)
-{
-    if (!empty($items['user/%user/edit'])) {
-        $items['user/%user/edit']['access callback'] = '_ssc_user_edit_access_callback';
-        $items['user/%user/edit']['access arguments'] = array(1);
-    }
-
-    if (!empty($items['members'])) {
-        $items['members']['access callback'] = 'user_access';
-        $items['members']['access arguments'] = array('view members only section');
-    }
-
-    unset($items['user/password']);
-}
-
-function ssc_permission()
-{
-
-    return array(
-        'view members only section' => array(
-            'title' => t('Members only'),
-            'description' => t('Allow users to view members only pages.'),
-        ),
-        'ssc clear page cache' => array(
-            'title' => t('Clear page cache'),
-            'description' => t('Trigger a drupal page cache clear'),
-        ),
-    );
 }
 
 /**
+ * hook_menu implementation
+ * @return array
+ */
+function ssc_menu() {
+  $items = array();
+
+  $items['login'] = array(
+    'title' => t('Login'),
+    'page callback' => '_ssc_page_forward',
+    'page arguments' => array('login'),
+    'access callback' => 'user_is_anonymous',
+    'weight' => 50,
+    'menu_name' => 'main-menu',
+    'file' => 'ssc.inc',
+  );
+
+  $items['logout'] = array(
+    'title' => t('Logout'),
+    'page callback' => '_ssc_page_forward',
+    'page arguments' => array('logout'),
+    'access callback' => 'user_is_logged_in',
+    'weight' => 51,
+    'menu_name' => 'main-menu',
+    'file' => 'ssc.inc',
+  );
+
+  $items['admin/config/ssc'] = array(
+    'title' => 'Sailing club settings',
+    'title callback' => 't',
+    'description' => t('Sailing club configuration'),
+    'position' => 'right',
+    'weight' => 30,
+    'page callback' => 'system_admin_menu_block_page',
+    'file' => 'system.admin.inc',
+    'access arguments' => array('administer site configuration'),
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/config/ssc/settings'] = array(
+    'title' => 'Settings',
+    'title callback' => 't',
+    'description' => t('Sailing club settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('form_ssc_main_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'ssc.inc',
+    'weight' => '10',
+  );
+
+  $items['clear-page-cache'] = array(
+    'title' => 'Clear page cache',
+    'title callback' => 't',
+    'description' => t(
+      'Clear the page cache for force changes to be visible to users.'
+    ),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_ssc_form_clear_path_cache'),
+    'access callback' => '_ssc_page_clear_access_callback',
+    'file' => 'ssc.inc',
+    'menu' => 'navigation',
+  );
+
+  $items['jump'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_ssc_page_secure_redir',
+    'file' => 'ssc.inc',
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * hook_menu_alter implementation
+ * @param $items
+ */
+function ssc_menu_alter(&$items) {
+  if (!empty($items['user/%user/edit'])) {
+    $items['user/%user/edit']['access callback'] = '_ssc_user_edit_access_callback';
+    $items['user/%user/edit']['access arguments'] = array(1);
+  }
+
+  if (!empty($items['members'])) {
+    $items['members']['access callback'] = 'user_access';
+    $items['members']['access arguments'] = array('view members only section');
+  }
+
+  unset($items['user/password']);
+}
+
+/**
+ * hook_permission implementation
+ * @return array
+ */
+function ssc_permission() {
+
+  return array(
+    'view members only section' => array(
+      'title' => t('Members only'),
+      'description' => t('Allow users to view members only pages.'),
+    ),
+    'ssc clear page cache' => array(
+      'title' => t('Clear page cache'),
+      'description' => t('Trigger a drupal page cache clear'),
+    ),
+  );
+}
+
+/**
+ * hook_node_access implementation
+ *
  * This should be redundant, but it's here in case a url alias is missing.
  *
  * @param $node
@@ -138,70 +153,81 @@ function ssc_permission()
  * @param $account
  * @return null|string
  */
-function ssc_node_access($node, $op, $account)
-{
-    if ($op != 'view' || !is_object($node)) {
-        return NODE_ACCESS_IGNORE;
-    }
-
-    if (in_array($node->type, array('file', 'private_page')) && user_is_anonymous()
-    ) {
-        return NODE_ACCESS_DENY;
-    }
-
+function ssc_node_access($node, $op, $account) {
+  if ($op != 'view' || !is_object($node)) {
     return NODE_ACCESS_IGNORE;
+  }
+
+  if (in_array($node->type, array('file', 'private_page')) && user_is_anonymous(
+    )
+  ) {
+    return NODE_ACCESS_DENY;
+  }
+
+  return NODE_ACCESS_IGNORE;
 }
 
+/**
+ * hook_block_info implementation
+ *
+ * @return mixed
+ */
+function ssc_block_info() {
+  $blocks['slider'] = array(
+    'info' => t('SSC: image slider'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
 
-function ssc_block_info()
-{
-    $blocks['slider'] = array(
-        'info' => t('SSC: image slider'),
-        'cache' => DRUPAL_CACHE_PER_ROLE,
-    );
+  $blocks['results'] = array(
+    'info' => t('SSC: results panel'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
 
-    $blocks['results'] = array(
-        'info' => t('SSC: results panel'),
-        'cache' => DRUPAL_CACHE_PER_ROLE,
-    );
-
-    return $blocks;
+  return $blocks;
 
 }
 
-function ssc_block_view($delta = '')
-{
-    $block = array();
+/**
+ * hook_block_view implementation
+ *
+ * @param string $delta
+ * @return array
+ */
+function ssc_block_view($delta = '') {
+  $block = array();
 
-    switch ($delta) {
+  switch ($delta) {
 
-        case 'results':
+    case 'results':
 
-            $result = drupal_http_request('http://results.swanagesailingclub.org.uk/list/index.php');
-            if (in_array($result->code, array(200, 304))) {
-                $output = "<p>Latest results</p><div>" . $result->data . "</div><p><a href='http://results.swanagesailingclub.org.uk/'>Browse all results</a></p>";
-            } else {
-                $output = $result->code;
-            }
+      $result = drupal_http_request(
+        'http://results.swanagesailingclub.org.uk/list/index.php'
+      );
+      if (in_array($result->code, array(200, 304))) {
+        $output = "<p>Latest results</p><div>" . $result->data . "</div><p><a href='http://results.swanagesailingclub.org.uk/'>Browse all results</a></p>";
+      }
+      else {
+        $output = $result->code;
+      }
 
-            $block['subject'] = null;
-            $block['content'] = array('#markup' => $output);
+      $block['subject'] = NULL;
+      $block['content'] = array('#markup' => $output);
 
-            break;
+      break;
 
-        case 'slider':
+    case 'slider':
 
-            drupal_add_js(
-                drupal_get_path('module', 'ssc') . '/carousel/jquery.jcarousel.min.js'
-            );
-            drupal_add_js(drupal_get_path('module', 'ssc') . '/carousel/carousel.js');
-            drupal_add_css(
-                drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
-            );
+      drupal_add_js(
+        drupal_get_path('module', 'ssc') . '/carousel/jquery.jcarousel.min.js'
+      );
+      drupal_add_js(drupal_get_path('module', 'ssc') . '/carousel/carousel.js');
+      drupal_add_css(
+        drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
+      );
 
-            $block['subject'] = null;
-            $block['content'] = array(
-                '#markup' => '
+      $block['subject'] = NULL;
+      $block['content'] = array(
+        '#markup' => '
 
 <!--<div class=\'view-frontpage members-callout\'>
 </div>
@@ -238,113 +264,120 @@ teach you to sail. Experience is not important. </p>
 </li></ul></div>
 <br/>--><h2>News and notices</h2>'
 
-            );
+      );
 
-            break;
+      break;
 
-    }
+  }
 
-    return $block;
+  return $block;
 
 }
 
 /**
- * Add a meta description based on a Field. This gives us more SEO control.
+ * hook__preprocess_page implementation
  *
+ * Add a meta description based on a Field. This gives us more SEO control.
+ * Also the home meta description which comes from an admin form
+ *
+ * @see form_ssc_main_settings()
  * @param $vars
  */
+function ssc_preprocess_page(&$vars) {
 
-function ssc_preprocess_page(&$vars)
-{
-
-    if (drupal_is_front_page()) {
-        $aMetaTag = array(
-
-            '#type' => 'html_tag',
-            '#tag' => 'meta',
-            '#attributes' => array(
-                'name' => 'Description',
-                'content' => 'Swanage Sailing Club. A vibrant community family sailing club in Dorset dedicated to spreading the enjoyment of dinghy sailing for all. Active sailing and social calenders and training programmes to teach adults and children to sail.',
-            ),
-        );
-        drupal_add_html_head($aMetaTag, 'meta_description');
-        return;
-    }
-
-    if (empty($vars['node']) || ($vars['node']->type != 'page')) {
-        return;
-    }
-
-    $aFieldItems = field_get_items(
-        'node',
-        $vars['node'],
-        'field_html_meta_description'
-    );
-
-    if (empty($aFieldItems)) {
-        return;
-    }
-
-    $aMetaDescription = field_view_value(
-        'node',
-        $vars['node'],
-        'field_html_meta_description',
-        $aFieldItems[0]
-    );
-
-    if (empty($aMetaDescription['#markup'])) {
-        return;
-    }
-
+  // Home page meta description tag
+  if (drupal_is_front_page()) {
     $aMetaTag = array(
-        '#type' => 'html_tag',
-        '#tag' => 'meta',
-        '#attributes' => array(
-            'name' => 'Description',
-            'content' => $aMetaDescription['#markup']
-        ),
+
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => array(
+        'name' => 'Description',
+        'content' => variable_get('ssc_front_meta_desc', ''),
+      ),
     );
     drupal_add_html_head($aMetaTag, 'meta_description');
 
+    return;
+  }
+
+  // node page meta description tag
+  if (empty($vars['node']) || ($vars['node']->type != 'page')) {
+    return;
+  }
+
+  $aFieldItems = field_get_items(
+    'node',
+    $vars['node'],
+    'field_html_meta_description'
+  );
+
+  if (empty($aFieldItems)) {
+    return;
+  }
+
+  $aMetaDescription = field_view_value(
+    'node',
+    $vars['node'],
+    'field_html_meta_description',
+    $aFieldItems[0]
+  );
+
+  if (empty($aMetaDescription['#markup'])) {
+    return;
+  }
+
+  $aMetaTag = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'Description',
+      'content' => $aMetaDescription['#markup']
+    ),
+  );
+  drupal_add_html_head($aMetaTag, 'meta_description');
+
 }
 
 /**
- * Add an HTML title tag based on a Field. This gives us more SEO control.
+ * hook ssc_preprocess_html implementation
  *
+ * Currently just adding html title tags based on the field field_html_title_tag and
+ * front page title which comes from an admin form.
+ *
+ * @see form_ssc_main_settings()
  * @param $vars
  */
+function ssc_preprocess_html(&$vars) {
 
-function ssc_preprocess_html(&$vars)
-{
+  if (drupal_is_front_page()) {
+    $vars['head_title'] = variable_get('ssc_front_title', '');
 
-    if (drupal_is_front_page()) {
-        $vars['head_title'] = 'Swanage Sailing Club in Dorest - sailing for all ages and abilities in a friendly family atmosphere.';
-        return;
-    }
+    return;
+  }
 
-    if ($vars['page']['#type'] != 'page') {
-        return;
-    }
+  if ($vars['page']['#type'] != 'page') {
+    return;
+  }
 
-    $node = menu_get_object();
+  $node = menu_get_object();
 
-    if (empty($node)) {
-        return;
-    }
+  if (empty($node)) {
+    return;
+  }
 
-    $aFieldItems = field_get_items('node', $node, 'field_html_title_tag');
+  $aFieldItems = field_get_items('node', $node, 'field_html_title_tag');
 
-    if (empty($aFieldItems)) {
-        return;
-    }
+  if (empty($aFieldItems)) {
+    return;
+  }
 
-    $aTitleTag = field_view_value(
-        'node',
-        $node,
-        'field_html_title_tag',
-        $aFieldItems[0]
-    );
+  $aTitleTag = field_view_value(
+    'node',
+    $node,
+    'field_html_title_tag',
+    $aFieldItems[0]
+  );
+  $vars['head_title'] = $aTitleTag['#markup'];
 
-    $vars['head_title'] = $aTitleTag['#markup'];
 }
-
