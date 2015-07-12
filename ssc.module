@@ -1,6 +1,8 @@
 <?php
 
 module_load_include('inc', 'ssc', 'ssc');
+module_load_include('inc', 'ssc', 'ssc_theme');
+module_load_include('inc', 'ssc', 'ssc_data');
 
 /**
  * hook_init() implementation
@@ -10,6 +12,15 @@ module_load_include('inc', 'ssc', 'ssc');
 function ssc_init() {
   drupal_add_js('misc/collapse.js');
   drupal_add_js('misc/form.js');
+
+  $front_title_tag = variable_get('ssc_front_meta_desc');
+  $front_meta_desc = variable_get('ssc_front_title');
+
+  // @todo, add admin check here, rather than just logged in check
+  if((empty( $front_title_tag) || empty($front_meta_desc) && user_is_logged_in())){
+    drupal_set_message(t('You must set your front spage html title and meta description text, see !see ',
+        array('!see' => l('configuration', 'admin/config/ssc/settings'))),'warning');
+  }
 
   if (!user_is_logged_in() && drupal_match_path(
       drupal_get_path_alias(current_path()),
@@ -194,24 +205,15 @@ function ssc_block_info() {
  * @return array
  */
 function ssc_block_view($delta = '') {
+
   $block = array();
 
   switch ($delta) {
 
     case 'results':
 
-      $result = drupal_http_request(
-        'http://results.swanagesailingclub.org.uk/list/index.php'
-      );
-      if (in_array($result->code, array(200, 304))) {
-        $output = "<p>Latest results</p><div>" . $result->data . "</div><p><a href='http://results.swanagesailingclub.org.uk/'>Browse all results</a></p>";
-      }
-      else {
-        $output = $result->code;
-      }
-
       $block['subject'] = NULL;
-      $block['content'] = array('#markup' => $output);
+      $block['content'] = theme('results', _ssc_get_webservice_results_data());
 
       break;
 
@@ -380,4 +382,18 @@ function ssc_preprocess_html(&$vars) {
   );
   $vars['head_title'] = $aTitleTag['#markup'];
 
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function ssc_theme() {
+  return array(
+    'results' => array(
+       'variables' => array(
+        'error' => NULL,
+        'data' => NULL,
+      ),
+    )
+  );
 }

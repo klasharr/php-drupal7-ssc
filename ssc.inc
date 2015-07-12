@@ -116,6 +116,32 @@ function form_ssc_main_settings($form, &$form_state) {
     '#default_value' => variable_get('ssc_front_meta_desc'),
   );
 
+  $form['results'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Settings for retrieving results from the results webservice'),
+    '#weight' => 20,
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['results']['results_webservice_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Webservice results URL'),
+    '#description' => t('Enter a URL, this should return compliant results listings data'),
+    '#size' => 100,
+    '#default_value' => variable_get('results_webservice_url'),
+  );
+
+  $form['results']['results_webservice_large_block_panel_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Webservice results count'),
+    '#description' => t('How many results should be displayed in the large results panel?'),
+    '#size' => 2,
+    '#maxsize' => 2,
+    '#default_value' => variable_get('results_webservice_large_block_panel_count'),
+  );
+
+
   return system_settings_form($form);
 }
 
