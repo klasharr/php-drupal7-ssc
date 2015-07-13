@@ -1,5 +1,4 @@
 name = SSC
 description = Sailing club extras
 core = 7.x
-files[] = ssc.module
 configure = admin/config/ssc

@@ -213,7 +213,7 @@ function ssc_block_view($delta = '') {
     case 'results':
 
       $block['subject'] = NULL;
-      $block['content'] = theme('results', _ssc_get_webservice_results_data());
+      $block['content'] = theme('results_large', _ssc_get_webservice_results_data());
 
       break;
 
@@ -389,7 +389,7 @@ function ssc_preprocess_html(&$vars) {
  */
 function ssc_theme() {
   return array(
-    'results' => array(
+    'results_large' => array(
        'variables' => array(
         'error' => NULL,
         'data' => NULL,

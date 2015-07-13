@@ -1,17 +1,28 @@
 <?php
 
-
-function theme_results(array $variables){
+/**
+ * @param array $variables
+ * @return string
+ */
+function theme_results_large(array $variables){
 
   if($variables['error'] == 1){
     return $variables['data'];
   }
   else {
-    $output = '<p>';
+
+    $header = array('Date', 'Race', 'Series');
+    $rows = array();
+
     foreach($variables['data'] as $result){
-      $output .= $result->date . ' ' . l($result->file, $result->link) . '</br>';
+
+      $rows[] = array(
+        array('data' => $result->date),
+        array('data' => l($result->friendly_file_name, $result->link)),
+        array('data' => array_pop($result->path_segments))
+        );
     }
-    $output .= '</p>';
-    return $output;
+
+    return theme('table', array('header' => $header, 'rows'=> $rows));
   }
 }
