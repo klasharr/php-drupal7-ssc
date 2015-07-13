@@ -194,6 +194,11 @@ function ssc_block_info() {
     'cache' => DRUPAL_CACHE_PER_ROLE,
   );
 
+  $blocks['results_small'] = array(
+    'info' => t('SSC: results panel small'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
+
   return $blocks;
 
 }
@@ -216,7 +221,12 @@ function ssc_block_view($delta = '') {
       $block['content'] = theme('results_large', _ssc_get_webservice_results_data());
 
       break;
+    case 'results_small':
 
+      $block['subject'] = NULL;
+      $block['content'] = theme('results_small', _ssc_get_webservice_results_data());
+
+      break;
     case 'slider':
 
       drupal_add_js(
@@ -391,6 +401,12 @@ function ssc_theme() {
   return array(
     'results_large' => array(
        'variables' => array(
+        'error' => NULL,
+        'data' => NULL,
+      ),
+    ),
+  'results_small' => array(
+      'variables' => array(
         'error' => NULL,
         'data' => NULL,
       ),
