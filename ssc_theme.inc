@@ -6,15 +6,20 @@
  */
 function theme_results_large(array $variables){
 
-  if($variables['error'] == 1){
-    return $variables['data'];
+  if($variables['data']['error'] == 1){
+    _ssc_log_results_panel_error($variables);
+    return t('Error retrieving results');
   }
   else {
+
+    if(empty($variables['data']['data'])) return t('No results data');
 
     $header = array('Date', 'Race', 'Series');
     $rows = array();
 
-    foreach($variables['data'] as $result){
+    $tmp = array_slice($variables['data']['data'], 0, $variables['display_count']);
+
+    foreach($tmp as $result){
 
       $rows[] = array(
         array('data' => $result->date),
@@ -33,21 +38,36 @@ function theme_results_large(array $variables){
  */
 function theme_results_small(array $variables){
 
-  if($variables['error'] == 1){
-    return $variables['data'];
+  if($variables['data']['error'] == 1){
+    _ssc_log_results_panel_error($variables);
+    return t('Error retrieving results');
   }
   else {
 
-    $tmp = array_slice($variables['data'], 0, 2);
+    if(empty($variables['data']['data'])) return t('No results data');
 
-    $output = "<ul>";
+    $tmp = array_slice($variables['data']['data'], 0, $variables['display_count']);
+
+    $items = array();
+    $output = '';
+
     foreach($tmp as $result){
-      $output .= "<li>".$result->date.'<br/>';
-      $output .= l(array_pop($result->path_segments). ' > '. $result->friendly_file_name, $result->link);
-      $output .= "</li>";
+      $items[] = array(
+        'data' => $result->date.'<br/>'.l(array_pop($result->path_segments). ' > '. $result->friendly_file_name, $result->link),
+      );
     }
-    $output .= "</ul>";
-    $output .= '<p>....<a href="/sailing/results-archive">more</a></P>';
+    $output .= '<div class="item-list">';
+    $output .= theme_item_list(
+      array(
+        'title' => null,
+        'items' => $items,
+        'type' => 'ul',
+        'attributes' => array('id' => 'latest_race_results')
+      )
+    );
+    $output .= '</div>';
+    $output .= sprintf('<div class="more-link">%s</div>',l(t('more'),variable_get('results_more_url')));
+
     return $output;
   }
 }

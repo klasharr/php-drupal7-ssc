@@ -217,16 +217,28 @@ function ssc_block_view($delta = '') {
 
     case 'results':
 
-      $block['subject'] = NULL;
-      $block['content'] = theme('results_large', _ssc_get_webservice_results_data());
-
+      $block['subject'] = t('Recently added results');
+      $block['content'] = theme('results_large', array(
+          'data' => _ssc_get_webservice_results_data(),
+          'display_count' => variable_get('latest_results_large_panel_count', 2)
+        )
+      );
       break;
+
     case 'results_small':
 
-      $block['subject'] = NULL;
-      $block['content'] = theme('results_small', _ssc_get_webservice_results_data());
-
+      $block['subject'] = t('Latest results');
+      $block['content'] = theme('results_small', array(
+          'data' => _ssc_get_webservice_results_data(),
+          'display_count' => variable_get('latest_results_small_panel_count', 2)
+        )
+      );
+      $block['status'] = TRUE;
+      $block['region'] = 'sidebar_second';
+      $block['visibility'] = BLOCK_VISIBILITY_LISTED;
+      $block['pages'] = '<front>';
       break;
+
     case 'slider':
 
       drupal_add_js(
@@ -284,6 +296,66 @@ teach you to sail. Experience is not important. </p>
 
   return $block;
 
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function ssc_block_configure($delta='') {
+
+  $form = array();
+
+  switch($delta) {
+
+    case 'results_small' :
+      $form['latest_results_small_panel_count'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Display count'),
+        '#description' => t('How many latest results do you want to show, enter a number between 1 and 10'),
+        '#size' => 2,
+        '#default_value' => variable_get('latest_results_small_panel_count', 2),
+        '#element_validate' => array('_ssc_validate_block_settings_latest_results_small_panel_count'),
+      );
+      $form['results_more_url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Small results panel more URL'),
+        '#description' => t('Where should the \'more\' URL go to?'),
+        '#size' => 60,
+        '#default_value' => variable_get('results_more_url'),
+      );
+      break;
+
+    case 'results' :
+      $form['latest_results_large_panel_count'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Display count'),
+        '#description' => t('How many latest results do you want to show, enter a number between 1 and 30.'),
+        '#size' => 2,
+        '#default_value' => variable_get('latest_results_large_panel_count', 10),
+        '#element_validate' => array('_ssc_validate_block_settings_latest_results_large_panel_count'),
+      );
+      break;
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ *
+ * This hook declares how the configured options for a block
+ * provided by this module are saved.
+ */
+function ssc_block_save($delta = '', $edit = array()) {
+
+  switch($delta) {
+    case 'results_small':
+      variable_set('latest_results_small_panel_count', $edit['latest_results_small_panel_count']);
+      variable_set('results_more_url', $edit['results_more_url']);
+      break;
+    case 'results':
+      variable_set('latest_results_large_panel_count', $edit['latest_results_large_panel_count']);
+      break;
+  }
 }
 
 /**

@@ -118,7 +118,7 @@ function form_ssc_main_settings($form, &$form_state) {
 
   $form['results'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Settings for retrieving results from the results webservice'),
+    '#title' => t('Settings for the race results block panels'),
     '#weight' => 20,
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
@@ -132,23 +132,10 @@ function form_ssc_main_settings($form, &$form_state) {
     '#default_value' => variable_get('results_webservice_url'),
   );
 
-  $form['results']['results_webservice_large_block_panel_count'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Webservice results count'),
-    '#description' => t('How many results should be displayed in the large results panel?'),
-    '#size' => 2,
-    '#maxsize' => 2,
-    '#default_value' => variable_get('results_webservice_large_block_panel_count'),
-  );
-
-
   return system_settings_form($form);
 }
 
-function form_ssc_main_setting_generic_user_id_validate(
-  $element,
-  &$form_state
-) {
+function form_ssc_main_setting_generic_user_id_validate($element, &$form_state) {
   if (isset($element['#value'])) {
     if ((int) $element['#value'] == 0) {
       form_error($element, t('Please enter an integer value greater than 0.'));
@@ -254,4 +241,35 @@ function _ssc_page_secure_redir() {
     )
   );
   drupal_goto('user/login', array('query' => array('destination' => $url)));
+}
+
+/**
+ * @todo reconcile with function below to have just one validator for either large or small panel
+ * @param $element
+ * @param $form_state
+ */
+function _ssc_validate_block_settings_latest_results_small_panel_count($element, &$form_state) {
+
+  if ((int) $element['#value'] == 0) {
+    form_error($element, t('Please enter an integer value between 1 and 10.'));
+  }
+}
+
+function _ssc_validate_block_settings_latest_results_large_panel_count($element, &$form_state) {
+
+  if ((int) $element['#value'] == 0) {
+    form_error($element, t('Please enter an integer value between 1 and 30.'));
+  }
+}
+
+/**
+ * @param $variables
+ */
+function _ssc_log_results_panel_error($variables) {
+
+  watchdog(
+    'ssc',
+    'Results webservice: ' . variable_get('results_webservice_url') .
+    ' Error: ' . $variables['data']['data']
+  );
 }
