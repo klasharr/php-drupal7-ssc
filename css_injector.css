@@ -1,0 +1,92 @@
+/*
+ * Styles currently added through the css injector module. Can be moved to a
+ * proper css file for normal inclusion in the future.
+ */
+
+div.field-name-field-image img {
+    float: left;
+    padding: 0.3em;
+}
+
+div.view-frontpage ul {
+    list-style-type: none;
+}
+
+div.ssc-news-item-title span.field-content {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+#main #content h1#page-title {
+    background: none;
+    color: #616161;
+}
+
+.field-name-field-file {
+    clear: both;
+}
+
+#content p {
+    padding: 0.5em 0 0.5em 0;
+}
+
+#block-block-21 {
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+div.node-gallery div.field-name-body {
+    clear: both;
+}
+
+div.members-callout {
+    margin: 0 0.8em 1.5em 0.8em;
+    background-color: #fef095;
+    border: 1px solid #800000;
+    padding-bottom: 0.5em;
+}
+
+div.members-callout h3 {
+    font-size: 1.3em;
+    font-weight: bold;
+    padding-top: 0.3em;
+    color: #800000;
+}
+
+#block-block-39 {
+    margin-top: 1em;
+    background-color: #fef095;
+    border: 1px solid #800000;
+}
+
+#block-block-39 p {
+    line-height: 1.7em;
+}
+
+div.content #sadness {
+    border: 1px solid black;
+    margin: 1em;
+    padding: 1em 1em 1em 1em;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 1.3em;
+}
+
+p.panel-highlight-link {
+    text-align: center;
+    margin-top: 0.5em;
+}
+
+p.panel-highlight-link a {
+    padding: 0.5em;
+    color: #800000;
+    background-color: #FFffcc;
+}
+
+table.table-font-size-87 {
+    font-size: 87.5%;
+}
+
+.ssc-news-item-posted-date {
+    color: gray;
+    font-size: 0.8em;
+}

@@ -249,47 +249,29 @@ function ssc_block_view($delta = '') {
         drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
       );
 
+      /* W.I.P */
+      $node =  node_load(297);
+
+      if(!$node || $node->type != 'carousel'){
+        watchdog('ssc','Slider block loading invalid node');
+        return;
+      }
+
+      if(empty($node->field_image['und'])){
+        watchdog('ssc','Slider block node has no images');
+        return;
+      }
+      $images = array();
+
+      foreach($node->field_image['und'] as $img){
+        $images[] = image_style_url('large', $img['uri']);
+      }
+
       $block['subject'] = NULL;
-      $block['content'] = array(
-        '#markup' => '
-
-<!--<div class=\'view-frontpage members-callout\'>
-</div>
--->
-<!-- added 19.06.2015
-<div class="wrapper">
-    <div class="jcarousel-wrapper">
-       <div class="jcarousel">
- <ul><li><img width="500" src="sites/default/files/image-uploads/carousel/club.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/swanage_beach.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/0.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/cat_g.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/1.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/2.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/3.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/4.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/5.jpg"></li>
-<li><img width="500" src="sites/default/files/image-uploads/carousel/6.jpg"></li>
-</ul>
-</div>
-<a href="#" class="jcarousel-control-prev">&lsaquo;</a>
-<a href="#" class="jcarousel-control-next">&rsaquo;</a>
-<p class="jcarousel-pagination"></p>
-</div>
-</div>
-<div class=\'view-frontpage members-callout\'><ul><li><h3>New Members Welcome</h3>
-<div style=\'width: 75%; margin:auto; font-size: 1.7em; background-color: #ffffea; padding: 0.5em; font-style: italic;\'><p style=\'text-align: center;\'><a href="/becoming-member">We are processing applications now!</a></p></div>
-<p>With its excellent facilities, private beach and fantastic views across the bay, the town\'s sailing club <a href="/becoming-member">welcomes new members</a>. You don\'t need a boat and we can
-teach you to sail. Experience is not important. </p>
-<p>Our mission is to get people sailing and absolute beginners of all ages are welcome. We run <a href="/training">training</a> for adults and <a href="/gallery/212">children</a> and encourage members to get out on the water for fun social sailing as well as regular racing for every level of sailor from novice to advanced.</p>
-<p>Please contact us to join as soon as possible. We process applications in January and February for enrolment in the spring as training and other activities start at the end of March.</p>
-<p>Read <a href="/becoming-member">more</a>. </p>
-<div style="text-align: center; padding: 2px;"><img src="/sites/default/files/image-uploads/ssc_frontpage_air_view_cropped.jpg" width="582" height="359"></div>
-</li></ul></div>
-<br/>--><h2>News and notices</h2>'
-
+      $block['content'] = theme('ssc_carousel', array(
+          'images' => $images
+        )
       );
-
       break;
 
   }
@@ -482,6 +464,17 @@ function ssc_theme() {
         'error' => NULL,
         'data' => NULL,
       ),
+    ),
+    'ssc_carousel' => array(
+      'variables' => array(
+        'images' => NULL,
+      ),
+    ),
+   'node__news' => array(
+      'render element' => 'content',
+      'base hook' => 'node',
+      'template' => 'node--news',
+      'path' => drupal_get_path('module', 'ssc') . '/views',
     )
   );
 }
