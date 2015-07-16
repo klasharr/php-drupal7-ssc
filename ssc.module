@@ -249,22 +249,8 @@ function ssc_block_view($delta = '') {
         drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
       );
 
-      /* W.I.P */
-      $node =  node_load(297);
-
-      if(!$node || $node->type != 'carousel'){
-        watchdog('ssc','Slider block loading invalid node');
-        return;
-      }
-
-      if(empty($node->field_image['und'])){
-        watchdog('ssc','Slider block node has no images');
-        return;
-      }
-      $images = array();
-
-      foreach($node->field_image['und'] as $img){
-        $images[] = image_style_url('large', $img['uri']);
+      if(!$images = _ssc_get_block_slider_images()){
+        return false;
       }
 
       $block['subject'] = NULL;
@@ -313,8 +299,18 @@ function ssc_block_configure($delta='') {
         '#title' => t('Display count'),
         '#description' => t('How many latest results do you want to show, enter a number between 1 and 30.'),
         '#size' => 2,
-        '#default_value' => variable_get('latest_results_large_panel_count', 10),
+        '#default_value' => variable_get('latest_results_large_panel_count'),
         '#element_validate' => array('_ssc_validate_block_settings_latest_results_large_panel_count'),
+      );
+      break;
+    case 'slider' :
+      $form['slider_nid'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Slider node id'),
+        '#description' => t('Enter the slider\'s node ID'),
+        '#size' => 2,
+        '#default_value' => variable_get('slider_nid', 10),
+        '#element_validate' => array('_ssc_validate_block_settings_slider_nid'),
       );
       break;
   }
@@ -336,6 +332,9 @@ function ssc_block_save($delta = '', $edit = array()) {
       break;
     case 'results':
       variable_set('latest_results_large_panel_count', $edit['latest_results_large_panel_count']);
+      break;
+    case 'slider':
+      variable_set('slider_nid', $edit['slider_nid']);
       break;
   }
 }

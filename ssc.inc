@@ -262,6 +262,22 @@ function _ssc_validate_block_settings_latest_results_large_panel_count($element,
   }
 }
 
+function _ssc_validate_block_settings_slider_nid($element, &$form_state) {
+
+  if ((int) $element['#value'] == 0) {
+    form_error($element, t('Please add an integer'));
+  }
+  $node =  node_load($element['#value']);
+
+  if(!$node || $node->type != 'carousel'){
+    form_error($element, t('This node id does not belong to content of type carousel'));
+  }
+
+  if(empty($node->field_image['und'])){
+    form_error($element, t('This node id has no images attached'));
+  }
+}
+
 /**
  * @param $variables
  */

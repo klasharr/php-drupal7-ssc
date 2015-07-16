@@ -34,3 +34,27 @@ function _ssc_get_webservice_results_data($count = 20){
     );
   }
 }
+
+/**
+ * W.I.P.
+ */
+function _ssc_get_block_slider_images(){
+
+  $node =  node_load(297);
+
+  if(!$node || $node->type != 'carousel'){
+    watchdog('ssc','Slider block loading invalid node');
+    return;
+  }
+
+  if(empty($node->field_image['und'])){
+    watchdog('ssc','Slider block node has no images');
+    return;
+  }
+  $images = array();
+
+  foreach($node->field_image['und'] as $img){
+    $images[] = image_style_url('large', $img['uri']);
+  }
+  return $images;
+}
