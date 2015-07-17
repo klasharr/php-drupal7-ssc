@@ -244,23 +244,21 @@ function _ssc_page_secure_redir() {
 }
 
 /**
- * @todo reconcile with function below to have just one validator for either large or small panel
  * @param $element
  * @param $form_state
  */
-function _ssc_validate_block_settings_latest_results_small_panel_count($element, &$form_state) {
+function _ssc_validate_block_settings_latest_results_count($element, &$form_state) {
 
-  if ((int) $element['#value'] == 0) {
-    form_error($element, t('Please enter an integer value between 1 and 10.'));
+  $count = $element['#id'] == "edit-latest-results-large-panel-count" ?
+    SSC_RESULTS_PANEL_LARGE_LIMIT :
+    SSC_RESULTS_PANEL_SMALL_LIMIT;
+
+  if ((int) $element['#value'] == 0 || (int) $element['#value'] > $count) {
+    form_error($element, t('Please enter an integer value between 1 and @count.',
+        array('@count' => $count)));
   }
 }
 
-function _ssc_validate_block_settings_latest_results_large_panel_count($element, &$form_state) {
-
-  if ((int) $element['#value'] == 0) {
-    form_error($element, t('Please enter an integer value between 1 and 30.'));
-  }
-}
 
 function _ssc_validate_block_settings_slider_nid($element, &$form_state) {
 

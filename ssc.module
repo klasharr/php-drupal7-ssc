@@ -4,6 +4,11 @@ module_load_include('inc', 'ssc', 'ssc');
 module_load_include('inc', 'ssc', 'ssc_theme');
 module_load_include('inc', 'ssc', 'ssc_data');
 
+define('SSC_RESULTS_PANEL_LARGE_LIMIT', 30);
+define('SSC_RESULTS_PANEL_SMALL_LIMIT', 10);
+define('SSC_RESULTS_PANEL_SMALL_DEFAULT', 2);
+define('SSC_RESULTS_PANEL_LARGE_DEFAULT', 15);
+
 /**
  * hook_init() implementation
  *
@@ -178,6 +183,34 @@ function ssc_node_access($node, $op, $account) {
   return NODE_ACCESS_IGNORE;
 }
 
+
+function ssc_library() {
+
+
+  /*drupal_add_js(
+    drupal_get_path('module', 'ssc') . '/carousel/jquery.jcarousel.min.js'
+  );
+  drupal_add_js(drupal_get_path('module', 'ssc') . '/carousel/carousel.js');
+  drupal_add_css(
+    drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
+  );*/
+
+  $libraries = array();
+  $libraries['carousel'] = array(
+    'title' => 'Carousel',
+    'website' => 'http://sorgalla.com/jcarousel/',
+    'version' => 'v0.3.1',
+    'js' => array(
+      base_path().'sites/all/libraries/carousel/jquery.jcarousel.min.js' => array(),
+      base_path().'sites/all/libraries/carousel/carousel.js' => array(),
+    ),
+    'css' => array(
+      base_path().'sites/all/libraries/carousel/carousel.css' => array(),
+    ),
+  );
+  return $libraries;
+}
+
 /**
  * hook_block_info implementation
  *
@@ -220,7 +253,7 @@ function ssc_block_view($delta = '') {
       $block['subject'] = t('Recently added results');
       $block['content'] = theme('results_large', array(
           'data' => _ssc_get_webservice_results_data(),
-          'display_count' => variable_get('latest_results_large_panel_count', 2)
+          'display_count' => variable_get('latest_results_large_panel_count', SSC_RESULTS_PANEL_LARGE_DEFAULT)
         )
       );
       break;
@@ -230,7 +263,7 @@ function ssc_block_view($delta = '') {
       $block['subject'] = t('Latest results');
       $block['content'] = theme('results_small', array(
           'data' => _ssc_get_webservice_results_data(),
-          'display_count' => variable_get('latest_results_small_panel_count', 2)
+          'display_count' => variable_get('latest_results_small_panel_count', SSC_RESULTS_PANEL_SMALL_DEFAULT)
         )
       );
       $block['status'] = TRUE;
@@ -241,13 +274,7 @@ function ssc_block_view($delta = '') {
 
     case 'slider':
 
-      drupal_add_js(
-        drupal_get_path('module', 'ssc') . '/carousel/jquery.jcarousel.min.js'
-      );
-      drupal_add_js(drupal_get_path('module', 'ssc') . '/carousel/carousel.js');
-      drupal_add_css(
-        drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
-      );
+      $result = drupal_add_library('ssc', 'carousel');
 
       if(!$images = _ssc_get_block_slider_images()){
         return false;
@@ -279,10 +306,11 @@ function ssc_block_configure($delta='') {
       $form['latest_results_small_panel_count'] = array(
         '#type' => 'textfield',
         '#title' => t('Display count'),
-        '#description' => t('How many latest results do you want to show, enter a number between 1 and 10'),
+        '#description' => t('How many latest results do you want to show, enter a number between enter a number between 1 and @count.',
+          array('@count' => SSC_RESULTS_PANEL_SMALL_LIMIT)),
         '#size' => 2,
-        '#default_value' => variable_get('latest_results_small_panel_count', 2),
-        '#element_validate' => array('_ssc_validate_block_settings_latest_results_small_panel_count'),
+        '#default_value' => variable_get('latest_results_small_panel_count', SSC_RESULTS_PANEL_SMALL_DEFAULT),
+        '#element_validate' => array('_ssc_validate_block_settings_latest_results_count'),
       );
       $form['results_more_url'] = array(
         '#type' => 'textfield',
@@ -297,10 +325,11 @@ function ssc_block_configure($delta='') {
       $form['latest_results_large_panel_count'] = array(
         '#type' => 'textfield',
         '#title' => t('Display count'),
-        '#description' => t('How many latest results do you want to show, enter a number between 1 and 30.'),
+        '#description' => t('How many latest results do you want to show, enter a number between 1 and @count.',
+          array('@count' => SSC_RESULTS_PANEL_LARGE_LIMIT)),
         '#size' => 2,
-        '#default_value' => variable_get('latest_results_large_panel_count'),
-        '#element_validate' => array('_ssc_validate_block_settings_latest_results_large_panel_count'),
+        '#default_value' => variable_get('latest_results_large_panel_count', SSC_RESULTS_PANEL_LARGE_DEFAULT),
+        '#element_validate' => array('_ssc_validate_block_settings_latest_results_count'),
       );
       break;
     case 'slider' :
@@ -309,7 +338,7 @@ function ssc_block_configure($delta='') {
         '#title' => t('Slider node id'),
         '#description' => t('Enter the slider\'s node ID'),
         '#size' => 2,
-        '#default_value' => variable_get('slider_nid', 10),
+        '#default_value' => variable_get('slider_nid'),
         '#element_validate' => array('_ssc_validate_block_settings_slider_nid'),
       );
       break;
