@@ -186,14 +186,7 @@ function ssc_node_access($node, $op, $account) {
 
 function ssc_library() {
 
-
-  /*drupal_add_js(
-    drupal_get_path('module', 'ssc') . '/carousel/jquery.jcarousel.min.js'
-  );
-  drupal_add_js(drupal_get_path('module', 'ssc') . '/carousel/carousel.js');
-  drupal_add_css(
-    drupal_get_path('module', 'ssc') . '/carousel/carousel.css'
-  );*/
+  global $base_url;
 
   $libraries = array();
   $libraries['carousel'] = array(
@@ -201,13 +194,16 @@ function ssc_library() {
     'website' => 'http://sorgalla.com/jcarousel/',
     'version' => 'v0.3.1',
     'js' => array(
-      base_path().'sites/all/libraries/carousel/jquery.jcarousel.min.js' => array(),
-      base_path().'sites/all/libraries/carousel/carousel.js' => array(),
+      $base_url.'/sites/all/libraries/carousel/jquery.jcarousel.min.js' => array(
+        'type' => 'file'),
+      $base_url.'/sites/all/libraries/carousel/carousel.js'  => array(
+        'type' => 'file'),
     ),
     'css' => array(
-      base_path().'sites/all/libraries/carousel/carousel.css' => array(),
-    ),
+      'sites/all/libraries/carousel/carousel.css' => array('type' => 'file')
+    )
   );
+
   return $libraries;
 }
 
@@ -274,7 +270,7 @@ function ssc_block_view($delta = '') {
 
     case 'slider':
 
-      $result = drupal_add_library('ssc', 'carousel');
+      drupal_add_library('ssc', 'carousel');
 
       if(!$images = _ssc_get_block_slider_images()){
         return false;
