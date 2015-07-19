@@ -45,7 +45,12 @@ function _ssc_get_webservice_results_data(){
  */
 function _ssc_get_block_slider_images(){
 
-  $node =  node_load(297);
+  $nid = variable_get('ssc_slider_nid');
+  if(empty($nid)){
+    drupal_set_message(t('The image slider block cannot be shown please configure the block and set an image carousel ID'));
+  }
+
+  $node =  node_load($nid);
 
   if(!$node || $node->type != 'carousel'){
     watchdog('ssc','Slider block loading invalid node');
@@ -59,7 +64,26 @@ function _ssc_get_block_slider_images(){
   $images = array();
 
   foreach($node->field_image['und'] as $img){
-    $images[] = image_style_url('large', $img['uri']);
+    $images[] = image_style_url( variable_get('ssc_slider_image_style','large'), $img['uri']);
   }
   return $images;
+}
+
+function _ssc_get_slider_nodes(){
+  $nids = db_select('node', 'n')
+    ->fields('n', array('nid'))
+    ->fields('n', array('type'))
+    ->condition('n.type', 'carousel')
+    ->execute()
+    ->fetchCol();
+  if(!$nids){
+    return array();
+  }
+
+  $nodes = node_load_multiple($nids);
+  $out = array();
+  foreach($nodes as $id => $node){
+    $out[$id] = sprintf("%s [%d]", $node->title,$id);
+  }
+  return $out;
 }

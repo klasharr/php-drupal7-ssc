@@ -329,13 +329,33 @@ function ssc_block_configure($delta='') {
       );
       break;
     case 'slider' :
-      $form['slider_nid'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Slider node id'),
-        '#description' => t('Enter the slider\'s node ID'),
-        '#size' => 2,
-        '#default_value' => variable_get('slider_nid'),
+      $form['slider'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Image slider settings'),
+        '#weight' => 5,
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+      );
+      $form['slider']['ssc_slider_nid'] = array(
+        '#type' => 'select',
+        '#title' => t('Image carousel ID'),
+        '#description' => t('Choose the which image carousel content you will use to provide the images'),
+        '#options' => _ssc_get_slider_nodes(),
+        '#default_value' => variable_get('ssc_slider_nid'),
         '#element_validate' => array('_ssc_validate_block_settings_slider_nid'),
+      );
+
+      $out = array();
+      foreach(image_styles() as $key => $data){
+        $out[$key] = $data['label'];
+      }
+
+      $form['slider']['ssc_slider_image_style'] = array(
+        '#type' => 'select',
+        '#title' => t('Image style'),
+        '#description' => t('Choose and image style to format the image for display'),
+        '#options' => $out,
+        '#default_value' => variable_get('ssc_slider_image_style'),
       );
       break;
   }
@@ -359,7 +379,8 @@ function ssc_block_save($delta = '', $edit = array()) {
       variable_set('latest_results_large_panel_count', $edit['latest_results_large_panel_count']);
       break;
     case 'slider':
-      variable_set('slider_nid', $edit['slider_nid']);
+      variable_set('ssc_slider_nid', $edit['ssc_slider_nid']);
+      variable_set('ssc_slider_image_style',$edit['ssc_slider_image_style']);
       break;
   }
 }

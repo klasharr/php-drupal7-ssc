@@ -130,6 +130,7 @@ function form_ssc_main_settings($form, &$form_state) {
     '#description' => t('Enter a URL, this should return compliant results listings data'),
     '#size' => 100,
     '#default_value' => variable_get('results_webservice_url'),
+    '#element_validate' => array('form_ssc_main_setting_results_webservice_url_validate'),
   );
 
   return system_settings_form($form);
@@ -275,6 +276,29 @@ function _ssc_validate_block_settings_slider_nid($element, &$form_state) {
     form_error($element, t('This node id has no images attached'));
   }
 }
+
+function form_ssc_main_setting_results_webservice_url_validate($element, &$form_state) {
+
+  $url = $element['#value'];
+
+  if(!valid_url($url)){
+    form_error($element, t('The URL is invalid'));
+    return;
+  }
+
+  $result = drupal_http_request($url);
+  if (!in_array($result->code, array(200, 304))) {
+    form_error($element, t('URL could not be reached'));
+    return;
+  }
+
+  $data = (array) json_decode($result->data);
+  if(!array_key_exists('error', $data) || !array_key_exists('data',$data)){
+    form_error($element, t('The URL returns data but it is in the wrong format.'));
+    return;
+  }
+}
+
 
 /**
  * @param $variables
