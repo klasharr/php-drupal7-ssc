@@ -130,7 +130,6 @@ function form_ssc_main_settings($form, &$form_state) {
     '#description' => t('Enter a URL, this should return compliant results listings data'),
     '#size' => 100,
     '#default_value' => variable_get('results_webservice_url'),
-    '#element_validate' => array('form_ssc_main_setting_results_webservice_url_validate'),
   );
 
   return system_settings_form($form);
@@ -245,60 +244,23 @@ function _ssc_page_secure_redir() {
 }
 
 /**
+ * @todo reconcile with function below to have just one validator for either large or small panel
  * @param $element
  * @param $form_state
  */
-function _ssc_validate_block_settings_latest_results_count($element, &$form_state) {
-
-  $count = $element['#id'] == "edit-latest-results-large-panel-count" ?
-    SSC_RESULTS_PANEL_LARGE_LIMIT :
-    SSC_RESULTS_PANEL_SMALL_LIMIT;
-
-  if ((int) $element['#value'] == 0 || (int) $element['#value'] > $count) {
-    form_error($element, t('Please enter an integer value between 1 and @count.',
-        array('@count' => $count)));
-  }
-}
-
-
-function _ssc_validate_block_settings_slider_nid($element, &$form_state) {
+function _ssc_validate_block_settings_latest_results_small_panel_count($element, &$form_state) {
 
   if ((int) $element['#value'] == 0) {
-    form_error($element, t('Please add an integer'));
-  }
-  $node =  node_load($element['#value']);
-
-  if(!$node || $node->type != 'carousel'){
-    form_error($element, t('This node id does not belong to content of type carousel'));
-  }
-
-  if(empty($node->field_image['und'])){
-    form_error($element, t('This node id has no images attached'));
+    form_error($element, t('Please enter an integer value between 1 and 10.'));
   }
 }
 
-function form_ssc_main_setting_results_webservice_url_validate($element, &$form_state) {
+function _ssc_validate_block_settings_latest_results_large_panel_count($element, &$form_state) {
 
-  $url = $element['#value'];
-
-  if(!valid_url($url)){
-    form_error($element, t('The URL is invalid'));
-    return;
-  }
-
-  $result = drupal_http_request($url);
-  if (!in_array($result->code, array(200, 304))) {
-    form_error($element, t('URL could not be reached'));
-    return;
-  }
-
-  $data = (array) json_decode($result->data);
-  if(!array_key_exists('error', $data) || !array_key_exists('data',$data)){
-    form_error($element, t('The URL returns data but it is in the wrong format.'));
-    return;
+  if ((int) $element['#value'] == 0) {
+    form_error($element, t('Please enter an integer value between 1 and 30.'));
   }
 }
-
 
 /**
  * @param $variables

@@ -28,7 +28,7 @@ function theme_results_large(array $variables){
         );
     }
 
-    return theme('table', array('header' => $header, 'rows'=> $rows));
+    return theme('table', array('header' => $header, 'rows'=> $rows))."<br/><br/>";
   }
 }
 
@@ -70,30 +70,4 @@ function theme_results_small(array $variables){
 
     return $output;
   }
-}
-
-/**
- * W.I.P
- *
- * @param $data
- * @return string
- */
-function theme_ssc_carousel($data){
-
-  $output = '<div class="wrapper">
-    <div class="jcarousel-wrapper">
-       <div class="jcarousel">
-            <ul>';
-  foreach($data['images'] as $url){
-    $output .= sprintf( '<li><img width="500" src="%s"></li>', $url);
-  }
-  $output .= '</ul>
-       </div>
-    <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
-    <a href="#" class="jcarousel-control-next">&rsaquo;</a>
-    <p class="jcarousel-pagination"></p>
-    </div>
-</div>';
-
-  return $output;
 }
