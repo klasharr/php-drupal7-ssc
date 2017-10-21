@@ -60,16 +60,7 @@ function form_ssc_main_settings($form, &$form_state) {
     '#default_value' => variable_get('ssc_default_minutes_page'),
   );
 
-  $query = db_select('users', 'u');
-  $query->condition('u.uid', 0, '<>');
-  $query->condition('u.status', 0, '<>');
-  $query->fields('u', array('uid', 'name'));
-  $result = $query->execute();
-
-  $options = array();
-  foreach ($result as $account) {
-    $options[$account->uid] = $account->name;
-  }
+  $options = _ssc_get_users_list();
 
   $form['generic_member']['ssc_generic_user_id'] = array(
     '#title' => t('Generic member'),

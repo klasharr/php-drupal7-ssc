@@ -53,7 +53,7 @@ function theme_results_small(array $variables){
 
     foreach($tmp as $result){
       $items[] = array(
-        'data' => $result->date.'<br/>'.l(array_pop($result->path_segments). ' > '. $result->friendly_file_name, $result->link),
+        'data' => $result->date.'<br/>'.l(array_pop(check_plain($result->path_segments)). ' > '. check_plain($result->friendly_file_name), check_url($result->link)),
       );
     }
     $output .= '<div class="item-list">';
@@ -66,7 +66,7 @@ function theme_results_small(array $variables){
       )
     );
     $output .= '</div>';
-    $output .= sprintf('<div class="more-link">%s</div>',l(t('more'),variable_get('results_more_url')));
+    $output .= sprintf('<div class="more-link">%s</div>',l(t('more'),check_url(variable_get('results_more_url'))));
 
     return $output;
   }

@@ -34,3 +34,24 @@ function _ssc_get_webservice_results_data($count = 20){
     );
   }
 }
+
+/**
+ * @return array 
+ *  user id => user name
+ */
+function _ssc_get_users_list(){
+  $query = db_select('users', 'u');
+  $query->condition('u.uid', 0, '<>');
+  $query->condition('u.status', 0, '<>');
+  $query->fields('u', array('uid', 'name'));
+  $result = $query->execute();
+  if(!$result){
+    return array();
+  }
+
+  $options = array();
+  foreach ($result as $account) {
+    $options[$account->uid] = $account->name;
+  }
+  return $options;
+}

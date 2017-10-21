@@ -10,6 +10,7 @@ module_load_include('inc', 'ssc', 'ssc_data');
  * @see form_ssc_main_settings()
  */
 function ssc_init() {
+  
   drupal_add_js('misc/collapse.js');
   drupal_add_js('misc/form.js');
 
@@ -251,8 +252,7 @@ function ssc_block_view($delta = '') {
 
       $block['subject'] = NULL;
       $block['content'] =  array(
-        '#markup' => ''
-
+        '#markup' => 'Nothing yet'
       );
 
       break;
